@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+
+argent=0
+taux=0
+resultat=0
+anne=0
+
+
+read -p "Combien voulez vous placé ?" argent
+read -p "A quel taux ?" taux
+read -p "Pour combien de temps" anne
+
+for((i=0;i!=$anne;i++))
+do
+
+resultat=$((($argent*$taux)/100))
+argent=$(($argent+$resultat))
+
+echo "Le gain de l'année est de $resultat nous avons donc $argent sur le compte"
+
+done
