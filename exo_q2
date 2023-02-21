@@ -1,0 +1,12 @@
+#!/usr/bin/env bash 
+
+monnombre=0  
+
+read -p "rentrer un nombre !" monnombre 
+
+if [ $monnombre -gt 9 -a $monnombre -lt 100 ]
+then
+echo "bien joué !"
+else
+echo "Il faut deux chiffres !"
+fi
