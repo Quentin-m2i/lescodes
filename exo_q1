@@ -1,0 +1,12 @@
+#!/usr/bin/env bash 
+
+monpass=0 
+
+read -p "Vous ne devinerez jamais mon nombre !" monpass 
+
+if [ $monpass -eq 15 ]
+then
+echo "bien joué !"
+else
+echo "Trop nul !"
+fi
