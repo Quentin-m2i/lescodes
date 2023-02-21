@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+#Variable 
+note=0 
+
+# Code 
+
+read -p "Quel note avez vous eu ?" note 
+
+if [ $note -lt 10 ]
+then
+echo "En dessous de 10, tu feras mieux la prochaine fois"
+else        
+  if [ $note -lt 12 ]        
+  then        
+  echo "C'est pas trop mal"        
+  else                
+    if [ $note -lt 14 ]                
+    then                
+    echo "C'est bien !"                
+    else                        
+      if [ $note -lt 16 ]                        
+      then                        
+      echo "C'est très bien !"                        
+      else                        
+      echo "Mais c'est vraiment super bien !"                        
+      fi                
+    fi        
+  fi
+fi
