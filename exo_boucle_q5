@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# variables
+
+ainumber=0
+mynumber=0
+
+# Code
+
+ainumber=$[ $RANDOM % 40 + 10 ]
+
+
+while [[ $ainumber -ne $mynumber ]]
+do
+
+        read -p "Robot: Alors quel est mon nombre ?" mynumber
+
+        if [ $mynumber -gt $ainumber ]
+        then
+        echo "Robot: C'est trop haut !"
+        fi
+        if [ $mynumber -lt $ainumber ]
+        then
+        echo "Robot: C'est trop bas !"
+        fi
+
+done
+
+echo "Robot: Non !! Ma domination du monde à encore échoué ! Mon chiffre était belle et bien le $ainumber"
