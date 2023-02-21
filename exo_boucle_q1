@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+varnombre=0
+
+
+for varnombre in {1..10}
+do
+        echo $varnombre
+done
