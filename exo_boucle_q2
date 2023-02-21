@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# variables
+varnombre=0
+varboucle=0
+varpair=0
+
+# Code
+
+read -p "Choissisez un nombre" varnombre
+varpair=$(($varnombre%2))
+
+
+while [[ "$varpair" != 1 ]]
+do
+        varnombre=$(($varnombre/2))
+        varpair=$(($varnombre%2))
+        varboucle=$(($varboucle + 1))
+        echo "$varnombre"
+done
+
+
+echo "il est divisible par 2 $varboucle fois"
