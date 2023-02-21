@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+varnombre=0
+varfacteur=0
+varcalcul=0
+
+read -p "Votre chiffre ?" varnombre
+
+varcalcul=$varnombre
+varfacteur=$varnombre
+
+
+for ((i=1;i!=$varnombre;i++))
+do
+        varcalcul=$(($varcalcul*$varfacteur))
+
+done
+
+echo " Le résultat est $varcalcul"
