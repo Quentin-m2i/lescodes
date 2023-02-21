@@ -1,0 +1,9 @@
+#!/usr/bin/env bash 
+
+
+if [ $1 -eq $2 ]
+then
+echo "Bah ils sont identiques ! Incroyable !"
+else
+echo "Ils sont pas pareille snif"
+fi
