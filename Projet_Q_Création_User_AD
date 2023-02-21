@@ -1,0 +1,82 @@
+#
+# Applicatif pour création unique ou massive d'utilisateurs dans l'AD
+# Créateur : Babuleaud Quentin
+# Date : 20/02/2023
+# Version : 0.0.1
+#
+# Variables
+$name_groupe = $null
+$name_user = $null
+$surname_user = $null
+$password = $null
+$service_user = $null
+$ou_user = $null
+$tld_domain = $null
+$ttl_domain = $null
+$Import_choice = $null
+$user_or_group = $null
+$wanna_exit = $null
+# Fonction
+
+
+
+# Code
+
+Write-Host "||*******  Bienvenue dans l'assistant de création rapide pour utilisateur ou groupe de l'AD  *******||"
+Do{
+    
+    $user_or_group = Read-Host "-Voulez vous créer des utilisateurs[U],des groupes[G] ou quitter[Q] ?"
+    switch($user_or_group)
+    {
+        # Module de création pour les utilisateurs
+        U 
+        {
+            $Import_choice = Read-host "--Voulez vous Créer un Simple utilisateur[S] ou Importer une liste[I] ?"
+            switch($Import_choice)
+            {
+                S
+                {
+                    # On rentre toutes les données pour l'execution de la commande new-aduser
+                    $surname_user = Read-Host "Nom de l'utilisateur "
+                    $name_user = Read-Host "Prénom de l'utilisateur "
+                    $total_name ="$name_user.$surname_user"
+                    $service_user = Read-Host "Dans quel service se trouve t'il ?"
+                    $password = Read-Host -maskinput "Mot de pass "
+                    $password = ConvertTo-SecureString $password -AsPlainText -Force
+                    $ou_user = read-host "Dans quel OU voulez vous mettre le User"
+                    # Inserer une vérification pour l'OU
+                    New-ADUser -Name "$name_user $surname_user" -Surname $surname_user -GivenName $name_user -SamAccountName $total_name -UserPrincipalName $total_name -AccountPassword $password -ChangePasswordAtLogon $true -CannotChangePassword $false -Department $service_user -Enabled $true -path "OU=$ou_user,DC=tssr,DC=lan" 
+                }
+                # Module pour l'importation de User avec un fichier
+                I
+                {
+                    Write-Host "Import"
+                }
+                # Permet de Boucler en cas d'input non attendue 
+                Default
+                {
+                    write-host "| Commande inconnue |"
+                }
+            }
+            $wanna_exit = Read-Host "---Voulez vous continuer ? [Y] "  
+        }
+        # Module de création pour les Groupes
+        G 
+        {
+            $Import_choice = Read-host "--Voulez vous Créer un Simple Groupe[S] ou Importer une liste[I] ?"
+            $wanna_exit = Read-Host "---Voulez vous continuer ? [Y] "  
+        }
+        # Permet de quitter l'application
+        Q
+        {
+            $wanna_exit = "q"
+        }
+        # Permet boucler en cas d'input non attendue
+        Default
+        {
+            write-host "| Commande inconnue |" 
+            $wanna_exit = "y"
+        }
+    }
+    
+}while ($wanna_exit -like "y") 
