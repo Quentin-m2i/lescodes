@@ -81,7 +81,7 @@ do
         while [[ $ainumber -ne $mynumber ]]
         do
 
-                while [[ $nochar -ne 1 ]]
+                while [[ $nochar -ne 1 ]]	#Vérification que la saisie soit bien un entier
                 do
                         nochar=0
                         echo -e "Robot: Alors quel est mon nombre ?\n"
