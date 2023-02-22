@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+
+# variables
+
+ainumber=0
+aimaxnumber=100
+mynumber=0
+nochar=0
+life=3
+maxlife=0
+highscore=0
+choice=0
+menu=0
+player=0
+replay=0
+
+
+# Code
+
+#creation du fichier highscore
+if [ -e /tmp/highscore ]
+then
+echo "le fichier highscore existe déja"
+else
+touch /tmp/highscore
+fi
+
+clear
+
+while [[ $replay -ne 1 ]] #Boucle du jeu
+do
+        while [[ $menu -ne 1 ]] #Boucle du menu
+        do
+
+        #Affichage du menu
+        echo - "||* ROBOT GAME KILLER WORLD ULTRA DELUX *||"
+        echo -e '\n\n  1 - Nouvelle Partie \n  2 - Afficher Paramètre \n  3 - Modifier Paramètre \n  4 - High Score \n  5 - Quitter le jeux'
+
+        #Selection du mode du menu
+        read menu
+        case $menu in
+                1)
+                        ainumber=$[ $RANDOM % $aimaxnumber ]
+                        maxlife=$life
+                        clear;;
+                2)
+                        clear
+                        echo "    Nombre de Vie du Gentil Joueur = $life"
+                        echo "    Nombre Maximum du méchant Robot = $aimaxnumber"
+                        read
+                        clear;;
+                3)
+                        clear
+                        echo "    choissisez le nombre maximum du Méchant Robot"
+						read aimaxnumber
+                        echo "    Choisissez le nombre de Vie du Gentil Joueur"
+                        read life
+                        clear;;
+                4)
+                        clear
+                        sort -g -r /tmp/highscore
+                        read
+                        clear;;
+                5)
+                        echo "  Robot: Alors je vais détruire ton monde Mouhahahaha"
+                        read
+                        ainumber=$mynumber
+                        replay=1
+                        menu=1
+                        ;;
+                *)
+                        echo -e "\n\n Robot: J'ai dis entre 1 et 4 c'est pas compliqué !"
+                        read
+                        clear;;
+        esac
+        done
+        clear
+        #On remet notre variable a 0 pour pouvoir retourner dans notre menu
+        menu=0
+        #Boucle du jeu/Robot
+        while [[ $ainumber -ne $mynumber ]]
+        do
+
+                while [[ $nochar -ne 1 ]]
+                do
+                        nochar=0
+                        echo -e "Robot: Alors quel est mon nombre ?\n"
+                        read mynumber   #Saisie du nombre du joueur
+                        [ $mynumber -eq 0 ] 2> /dev/null
+                        if [ $? -eq 0 -o $? -eq 1 ]
+                        then
+                        nochar=1
+                        fi
+                done
+                nochar=0
+                totalessai=$(($totalessai + 1))
+
+                if [ $mynumber -eq $ainumber ]  # Si le joueur gagne
+                then
+                echo "Robot: Non !! Ma domination du monde à encore échoué ! Mon chiffre était belle et bien le $ainumber"
+                highscore=$((((1000-$maxlife)-$aimaxnumber)-$totalessai))       #On calcul le score du joueur
+                echo -e  "Robot: Quel est le nom de la créature qui ma vaincu !?\n"
+                read player                                                     #Saisie du nom du joueur
+                echo -e "$highscore --- $player\n" >> /tmp/highscore    #on injecte le score dans un fichier
+				
+                else
+                        if [ $mynumber -lt $ainumber ]  #Comparatif de haut/bas
+                        then
+                        echo "Robot: C'est trop bas !"
+                        else
+                        echo "Robot: C'est trop Haut !"
+                        fi
+
+                        life=$(($life -1))      #on enleve une vie au joueur
+                        echo "Robot: il ne te reste plus que $life vie ! Ha....ha....ha"
+                        read
+                        if [ $life -eq 0 ]      #Verification si le joueur a perdu
+                        then
+                                echo "Robot: Tu n'as plus de vie ! Le monde m'appartient !"
+                                mynumber=$ainumber
+                                read
+                        fi
+                fi
+        done
+clear
+done
