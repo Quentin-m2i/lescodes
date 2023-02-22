@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+# variables
+
+ainumber=0
+mynumber=0
+life=3
+choice=0
+
+# Code
+
+ainumber=$[ $RANDOM % 40 + 10 ]
+
+
+while [[ $ainumber -ne $mynumber ]]
+do
+
+        read -p "Robot: Alors quel est mon nombre ?" mynumber
+
+        if [ $mynumber -eq $ainumber ]
+        then
+        echo "Robot: Non !! Ma domination du monde à encore échoué ! Mon chiffre était belle et bien le $ainumber"
+        else
+                if [ $mynumber -lt $ainumber ]
+                then
+                echo "Robot: C'est trop bas !"
+                else
+                echo "Robot: C'est trop Haut !"
+                fi
+                life=$(($life -1))
+                echo "Robot: il ne te reste plus que $life vie ! Ha....ha....ha"
+                if [ $life -eq 0 ]
+                then
+                        echo "Robot: Tu n'as plus de vie ! Le monde m'appartient !"
+                        mynumber=$ainumber
+                else
+                        read -p "Robot: Alors abandonne tu ? [O]ui" choice
+
+                        if [ $choice == "o" -o $choice == "O" ]
+                        then
+                                clear
+                                read -p "Robot: Je vais donc prendre possession du monde !" life
+                                mynumber=$ainumber
+                                clear
+                        else
+                                echo "Robot: Allons y à nouveau alors !"
+                        fi
+                fi
+        fi
+done
