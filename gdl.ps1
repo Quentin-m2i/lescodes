@@ -22,7 +22,7 @@ New-ADOrganizationalUnit -Name "OU_ShareFile" -Path "DC=$DC1,DC=$DC2"
 
 
 
-while($fi -lt 7)
+while($fi -lt 8)
 {
   # Mise en place du noms du GDL
 	$fichiermaintenant=$fichier[$fi]
