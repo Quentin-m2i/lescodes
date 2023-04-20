@@ -1,9 +1,10 @@
 #
-# Applicatif pour création unique ou massive d'utilisateurs dans l'AD
+# Scrip pour création Unique ou Import Massif d'utilisateur | Groupe | Unité d'organisation dans l'AD
 # Créateur : Babuleaud Quentin
 # Date : 20/02/2023
 # Version : 0.0.1
 #
+
 # Variables
 $name_groupe = $null
 $name_user = $null
@@ -11,17 +12,19 @@ $surname_user = $null
 $password = $null
 $service_user = $null
 $ou_user = $null
-$tld_domain = $null
-$ttl_domain = $null
+$ADDomain_prefix = "tssr"
+$ADDomain_sufix = "lab"
 $Import_choice = $null
 $user_or_group = $null
 $wanna_exit = $null
+$csvimport_data = $null
+$csvimport_data_path = $null
 # Fonction
 
 
 
 # Code
-
+import-module activedirectory
 Write-Host "||*******  Bienvenue dans l'assistant de création rapide pour utilisateur ou groupe de l'AD  *******||"
 Do{
     
@@ -37,6 +40,7 @@ Do{
                 S
                 {
                     # On rentre toutes les données pour l'execution de la commande new-aduser
+                    
                     $surname_user = Read-Host "Nom de l'utilisateur "
                     $name_user = Read-Host "Prénom de l'utilisateur "
                     $total_name ="$name_user.$surname_user"
@@ -45,12 +49,40 @@ Do{
                     $password = ConvertTo-SecureString $password -AsPlainText -Force
                     $ou_user = read-host "Dans quel OU voulez vous mettre le User"
                     # Inserer une vérification pour l'OU
-                    New-ADUser -Name "$name_user $surname_user" -Surname $surname_user -GivenName $name_user -SamAccountName $total_name -UserPrincipalName $total_name -AccountPassword $password -ChangePasswordAtLogon $true -CannotChangePassword $false -Department $service_user -Enabled $true -path "OU=$ou_user,DC=tssr,DC=lan" 
+                    New-ADUser -Name "$name_user $surname_user" -Surname $surname_user -GivenName $name_user -SamAccountName $total_name -UserPrincipalName $total_name -AccountPassword $password -ChangePasswordAtLogon $true -CannotChangePassword $false -Department $service_user -Enabled $true -path "OU=$ou_user,DC=$ADDomain_prefix,DC=$ADDomain_sufix" 
                 }
                 # Module pour l'importation de User avec un fichier
                 I
                 {
-                    Write-Host "Import"
+                    Write-Host "Veuillez saisir l'emplacement de votre dossier CSV"
+                    Write-Host "Format nom;prenom;service"
+                    $csvimport_data_path = read-host
+                    $csvimport_data = Import-csv -path $csvimport_data_path -delimiter ";"
+                    write-host "Veuillez Saisir l'OU ou y injecter les utilisateurs"
+                    $ou_user = read-host
+                    $password = "Azerty1234"
+                    foreach ($csvimport_user in $csvimport_data)
+                    {
+                        $name_user = $csvimport_user.prenom
+                        $surname_user = $csvimport_user.nom
+                        $total_name = "$surname_user.$name_user"
+
+                        $TotalUserParam = @{
+                            name = "$name_user $surname_user"
+                            surname = $surname_user
+                            GivenName = $name_user
+                            DisplayName = "$name_user $surname_user"
+                            UserPrincipalName = "${total_name}@$ADDomain_prefix.$ADDomain_sufix"
+                            AccountPassword = (ConvertTo-SecureString $password -AsPlainText -Force)
+                            ChangePasswordAtLogon = $true
+                            CannotChangePassword = $false
+                            Department = $csvimport_user.service
+                            SamAccountName = $total_name
+                            Enabled = $true
+                            path = "OU=Paris,DC=$ADDomain_prefix,DC=$ADDomain_sufix"
+                        }
+                        New-ADUser @TotalUserParam 
+                    }
                 }
                 # Permet de Boucler en cas d'input non attendue 
                 Default
@@ -80,3 +112,4 @@ Do{
     }
     
 }while ($wanna_exit -like "y") 
+    
