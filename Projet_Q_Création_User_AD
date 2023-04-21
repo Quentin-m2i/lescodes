@@ -1,12 +1,14 @@
 #
-# Scrip pour création Unique ou Import Massif d'utilisateur | Groupe | Unité d'organisation dans l'AD
+# Scrip pour création Unique ou Import Massif d'utilisateur dans l'AD
 # Créateur : Babuleaud Quentin
 # Date : 20/02/2023
 # Version : 0.0.1
 #
+#
+# Format fichier user csv nom;prenom;service
+#
 
 # Variables
-$name_groupe = $null
 $name_user = $null
 $surname_user = $null
 $password = $null
@@ -14,52 +16,78 @@ $service_user = $null
 $ou_user = $null
 $ADDomain_prefix = "tssr"
 $ADDomain_sufix = "lab"
-$Import_choice = $null
-$user_or_group = $null
+$Choice = $null
+$menu = $null
 $wanna_exit = $null
 $csvimport_data = $null
 $csvimport_data_path = $null
+$Totalparam = $null
 # Fonction
 
 
 
 # Code
+Clear-Host
 import-module activedirectory
-Write-Host "||*******  Bienvenue dans l'assistant de création rapide pour utilisateur ou groupe de l'AD  *******||"
+Set-location -path "ad:" -passthru
+
+Write-Host "***  Bienvenue dans mon petit script de création dans l'Active Directory  ***" 
 Do{
-    
-    $user_or_group = Read-Host "-Voulez vous créer des utilisateurs[U],des groupes[G] ou quitter[Q] ?"
-    switch($user_or_group)
+    Write-host "[U] Création D'utilisateur" 
+    write-host "[O] Création d'Unité d'Organisation" 
+    write-host "[Q] Quitter"
+    $Menu = Read-Host 
+    switch($menu)
     {
         # Module de création pour les utilisateurs
         U 
         {
-            $Import_choice = Read-host "--Voulez vous Créer un Simple utilisateur[S] ou Importer une liste[I] ?"
-            switch($Import_choice)
+            write-host "[S] Simple"
+            write-host "[I] Import"
+            $Choice = Read-host
+            switch($Choice)
             {
+                # Module de création d'utilisateur simple
                 S
                 {
                     # On rentre toutes les données pour l'execution de la commande new-aduser
-                    
-                    $surname_user = Read-Host "Nom de l'utilisateur "
-                    $name_user = Read-Host "Prénom de l'utilisateur "
+                    $surname_user = Read-Host "Nom de l'utilisateur :"
+                    $name_user = Read-Host "Prénom de l'utilisateur :"
                     $total_name ="$name_user.$surname_user"
-                    $service_user = Read-Host "Dans quel service se trouve t'il ?"
-                    $password = Read-Host -maskinput "Mot de pass "
-                    $password = ConvertTo-SecureString $password -AsPlainText -Force
-                    $ou_user = read-host "Dans quel OU voulez vous mettre le User"
+                    $service_user = Read-Host "Service :"
+                    $password = Read-Host -maskinput "Mot de pass :"
+                    $ou_user = read-host "OU :"
+                    # on Récupere le distinguished name
+                    $ou_user = Set-location -path "ad:" && Get-ADOrganizationalUnit -filter "name -like '$ou_user'" | select-string -pattern 'OU'
                     # Inserer une vérification pour l'OU
-                    New-ADUser -Name "$name_user $surname_user" -Surname $surname_user -GivenName $name_user -SamAccountName $total_name -UserPrincipalName $total_name -AccountPassword $password -ChangePasswordAtLogon $true -CannotChangePassword $false -Department $service_user -Enabled $true -path "OU=$ou_user,DC=$ADDomain_prefix,DC=$ADDomain_sufix" 
+                    # Nous préparons nos paramètre pour le cmdlet New-Aduser
+                    $TotalParam = @{
+                        name = "$name_user $surname_user"
+                        surname = $surname_user
+                        GivenName = $name_user
+                        DisplayName = "$name_user $surname_user"
+                        UserPrincipalName = "${total_name}@$ADDomain_prefix.$ADDomain_sufix"
+                        AccountPassword = (ConvertTo-SecureString $password -AsPlainText -Force)
+                        ChangePasswordAtLogon = $true
+                        CannotChangePassword = $false
+                        Department = $service_user
+                        SamAccountName = $total_name
+                        Enabled = $true
+                        path = "$ou_user"
+                    }
+                    $TotalParam
+                    read-host
+                    New-ADUser @TotalParam
                 }
-                # Module pour l'importation de User avec un fichier
+                # Module de création d'utilisateur importer avec fichier .csv
                 I
                 {
-                    Write-Host "Veuillez saisir l'emplacement de votre dossier CSV"
-                    Write-Host "Format nom;prenom;service"
-                    $csvimport_data_path = read-host
-                    $csvimport_data = Import-csv -path $csvimport_data_path -delimiter ";"
+                    $csvimport_data_path = read-host "Emplacement dichier CSV :"
                     write-host "Veuillez Saisir l'OU ou y injecter les utilisateurs"
                     $ou_user = read-host
+                    $ou_user = Set-location -path "ad:" && Get-ADOrganizationalUnit -filter "name -like '$ou_user'" | select-string -pattern 'OU'
+                    # Inserer une vérification pour l'OU
+                    $csvimport_data = Import-csv -path $csvimport_data_path -delimiter ";"
                     $password = "Azerty1234"
                     foreach ($csvimport_user in $csvimport_data)
                     {
@@ -67,7 +95,7 @@ Do{
                         $surname_user = $csvimport_user.nom
                         $total_name = "$surname_user.$name_user"
 
-                        $TotalUserParam = @{
+                        $TotalParam = @{
                             name = "$name_user $surname_user"
                             surname = $surname_user
                             GivenName = $name_user
@@ -79,9 +107,10 @@ Do{
                             Department = $csvimport_user.service
                             SamAccountName = $total_name
                             Enabled = $true
-                            path = "OU=Paris,DC=$ADDomain_prefix,DC=$ADDomain_sufix"
+                            path = "$ou_user"
                         }
-                        New-ADUser @TotalUserParam 
+                        $TotalParam # affichage pour vérification
+                        New-ADUser @TotalParam 
                     }
                 }
                 # Permet de Boucler en cas d'input non attendue 
@@ -92,12 +121,15 @@ Do{
             }
             $wanna_exit = Read-Host "---Voulez vous continuer ? [Y] "  
         }
-        # Module de création pour les Groupes
-        G 
+
+
+        
+        # Création des OU
+        O
         {
-            $Import_choice = Read-host "--Voulez vous Créer un Simple Groupe[S] ou Importer une liste[I] ?"
-            $wanna_exit = Read-Host "---Voulez vous continuer ? [Y] "  
+
         }
+
         # Permet de quitter l'application
         Q
         {
